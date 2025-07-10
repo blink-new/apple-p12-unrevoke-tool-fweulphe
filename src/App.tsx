@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
+
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useToast } from '@/hooks/use-toast'
 import { Toaster } from '@/components/ui/toaster'
@@ -26,8 +26,7 @@ function App() {
   const [certificates, setCertificates] = useState<CertificateInfo[]>([])
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
-  const [progress, setProgress] = useState(0)
-  const [password, setPassword] = useState('')
+  
   const { toast } = useToast()
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,10 +47,10 @@ function App() {
   }
 
   const simulateUnrevoke = async () => {
-    if (!selectedFile || !password) {
+    if (!selectedFile) {
       toast({
-        title: "Missing information",
-        description: "Please upload a certificate and enter the password",
+        title: "Missing file",
+        description: "Please upload a certificate file.",
         variant: "destructive"
       })
       return
@@ -95,7 +94,6 @@ function App() {
         
         // Reset form
         setSelectedFile(null)
-        setPassword('')
         const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
         if (fileInput) fileInput.value = ''
       }
@@ -206,49 +204,14 @@ function App() {
                   )}
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="password">Certificate Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Enter your P12 password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="font-mono"
-                  />
-                </div>
-
-                {isProcessing && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    className="space-y-3"
-                  >
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Processing...</span>
-                      <span className="font-medium">{progress}%</span>
-                    </div>
-                    <Progress value={progress} className="h-2" />
-                  </motion.div>
-                )}
-
                 <Button 
                   onClick={simulateUnrevoke}
-                  disabled={!selectedFile || !password || isProcessing}
+                  disabled={!selectedFile || isProcessing}
                   className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all duration-200"
                   size="lg"
                 >
-                  {isProcessing ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      <Shield className="w-4 h-4 mr-2" />
-                      Unrevoke Certificate
-                    </>
-                  )}
+                  <Shield className="w-4 h-4 mr-2" />
+                  Unrevoke Certificate
                 </Button>
               </CardContent>
             </Card>
