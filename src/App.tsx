@@ -57,7 +57,6 @@ function App() {
     }
 
     setIsProcessing(true)
-    setProgress(0)
 
     // Simulate processing steps
     const steps = [
@@ -68,39 +67,34 @@ function App() {
       { progress: 100, message: "Certificate unrevoked successfully!" }
     ]
 
-    for (const step of steps) {
+    for (let i = 0; i < steps.length; i++) {
       await new Promise(resolve => setTimeout(resolve, 1000))
-      setProgress(step.progress)
-      
-      if (step.progress === 100) {
-        // Add the "unrevoked" certificate to the list
-        const newCert: CertificateInfo = {
-          id: `cert_${Date.now()}`,
-          name: selectedFile.name.replace('.p12', ''),
-          status: 'active',
-          issueDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toLocaleDateString(),
-          expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toLocaleDateString(),
-          bundleId: 'com.example.app',
-          type: Math.random() > 0.5 ? 'development' : 'distribution',
-          file: selectedFile
-        }
-        
-        setCertificates(prev => [newCert, ...prev])
-        
-        toast({
-          title: "Success!",
-          description: "Certificate has been successfully unrevoked",
-        })
-        
-        // Reset form
-        setSelectedFile(null)
-        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
-        if (fileInput) fileInput.value = ''
-      }
+      // Optionally, could show a toast or log steps[i].message
     }
 
-    setIsProcessing(false)
-    setProgress(0)
+    // Add the "unrevoked" certificate to the list
+    const newCert: CertificateInfo = {
+      id: `cert_${Date.now()}`,
+      name: selectedFile.name.replace('.p12', ''),
+      status: 'active',
+      issueDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toLocaleDateString(),
+      expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toLocaleDateString(),
+      bundleId: 'com.example.app',
+      type: Math.random() > 0.5 ? 'development' : 'distribution',
+      file: selectedFile
+    }
+    
+    setCertificates(prev => [newCert, ...prev])
+    
+    toast({
+      title: "Success!",
+      description: "Certificate has been successfully unrevoked",
+    })
+    
+    // Reset form
+    setSelectedFile(null)
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
+    if (fileInput) fileInput.value = ''
   }
 
   const handleDownload = (file: File | undefined, name: string) => {
