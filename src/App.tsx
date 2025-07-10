@@ -19,6 +19,7 @@ interface CertificateInfo {
   expiryDate: string
   bundleId: string
   type: 'development' | 'distribution'
+  file: File // Store the original file for download
 }
 
 function App() {
@@ -81,7 +82,8 @@ function App() {
           issueDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toLocaleDateString(),
           expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toLocaleDateString(),
           bundleId: 'com.example.app',
-          type: Math.random() > 0.5 ? 'development' : 'distribution'
+          type: Math.random() > 0.5 ? 'development' : 'distribution',
+          file: selectedFile
         }
         
         setCertificates(prev => [newCert, ...prev])
@@ -101,6 +103,19 @@ function App() {
 
     setIsProcessing(false)
     setProgress(0)
+  }
+
+  const handleDownload = (file: File, name: string) => {
+    const url = URL.createObjectURL(file)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = name.endsWith('.p12') ? name : name + '.p12'
+    document.body.appendChild(a)
+    a.click()
+    setTimeout(() => {
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    }, 100)
   }
 
   const getStatusBadge = (status: CertificateInfo['status']) => {
@@ -291,7 +306,7 @@ function App() {
                             <p className="font-medium">{cert.expiryDate}</p>
                           </div>
                           <div className="flex justify-end">
-                            <Button size="sm" variant="outline" className="text-xs">
+                            <Button size="sm" variant="outline" className="text-xs" onClick={() => handleDownload(cert.file, cert.name)}>
                               <Download className="w-3 h-3 mr-1" />
                               Download
                             </Button>
