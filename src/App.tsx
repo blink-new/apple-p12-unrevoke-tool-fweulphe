@@ -19,7 +19,7 @@ interface CertificateInfo {
   expiryDate: string
   bundleId: string
   type: 'development' | 'distribution'
-  file: File // Store the original file for download
+  file?: File // Make file optional
 }
 
 function App() {
@@ -105,7 +105,15 @@ function App() {
     setProgress(0)
   }
 
-  const handleDownload = (file: File, name: string) => {
+  const handleDownload = (file: File | undefined, name: string) => {
+    if (!file || !(file instanceof Blob)) {
+      toast({
+        title: "Download failed",
+        description: "Certificate file is missing or invalid.",
+        variant: "destructive"
+      })
+      return
+    }
     const url = URL.createObjectURL(file)
     const a = document.createElement('a')
     a.href = url
@@ -306,7 +314,7 @@ function App() {
                             <p className="font-medium">{cert.expiryDate}</p>
                           </div>
                           <div className="flex justify-end">
-                            <Button size="sm" variant="outline" className="text-xs" onClick={() => handleDownload(cert.file, cert.name)}>
+                            <Button size="sm" variant="outline" className="text-xs" onClick={() => handleDownload(cert.file, cert.name)} disabled={!cert.file}>
                               <Download className="w-3 h-3 mr-1" />
                               Download
                             </Button>
